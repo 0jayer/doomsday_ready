@@ -53,6 +53,12 @@
   text-align: left;
 }
 
+.movie-table th:last-child,
+.movie-table td:last-child {
+  width: 360px;
+  min-width: 360px;
+}
+
 .movie-table th {
   color: #8ea0ff;
   font-size: 0.78rem;
@@ -72,6 +78,15 @@
 
 .movie-table tbody tr:last-child td {
   border-bottom: 0;
+}
+
+.direct-prerequisite-line {
+  min-width: 220px;
+}
+
+.direct-prerequisite-value {
+  margin: 0;
+  overflow-wrap: anywhere;
 }
 
 .prerequisite-dropdown {
@@ -121,6 +136,13 @@
   font-size: 0.9rem;
 }
 
+.prerequisite-options input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  min-height: 16px;
+  flex-basis: 16px;
+}
+
 .prerequisite-options label:hover {
   background: #242b44;
 }
@@ -129,6 +151,53 @@
 .inline-error,
 .form-error {
   color: #ff8e9a;
+}
+
+.prerequisite-editor {
+  width: 300px;
+  max-width: 100%;
+}
+
+.prerequisite-edit-line {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.prerequisite-edit-line .prerequisite-dropdown {
+  width: 190px;
+  flex: 0 0 190px;
+}
+
+.prerequisite-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 0;
+}
+
+.prerequisite-actions button,
+.edit-prerequisites-button {
+  min-height: 32px;
+  padding: 5px 10px;
+}
+
+.edit-prerequisites-button {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  visibility: visible !important;
+  opacity: 1 !important;
+  flex: 0 0 auto;
+  margin: 0;
+  background: transparent;
+  border-color: #4f5874;
+  color: #cdd3ea;
+}
+
+.secondary-button {
+  background: transparent;
+  color: #cdd3ea;
+  border-color: #4f5874;
 }
 
 .form-error {

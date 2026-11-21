@@ -41,6 +41,7 @@ function App() {
         ok: false,
         code: requestError.code,
         message: requestError.message,
+        details: requestError.details,
       }
     }
   }
@@ -79,6 +80,7 @@ function App() {
         ok: false,
         code: requestError.code,
         message: requestError.message,
+        details: requestError.details,
       }
     }
   }

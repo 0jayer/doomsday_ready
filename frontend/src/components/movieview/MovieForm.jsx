@@ -7,11 +7,13 @@ function MovieForm({ movies, onCreate }) {
   const [prerequisiteIds, setPrerequisiteIds] = useState([])
   const [error, setError] = useState("")
   const [fieldError, setFieldError] = useState("")
+  const [runtimeError, setRuntimeError] = useState("")
 
   async function handleSubmit(event) {
     event.preventDefault()
     setError("")
     setFieldError("")
+    setRuntimeError("")
 
     const result = await onCreate({
       title,
@@ -25,6 +27,20 @@ function MovieForm({ movies, onCreate }) {
       setError(result.message)
       if (result.code === "DUPLICATE_TITLE") {
         setFieldError("This movie title is already in use.")
+      }
+      if (result.details) {
+        const runtimeIssue = result.details.find((item) =>
+          item.loc?.includes("runtimeMinutes"),
+        )
+        if (runtimeIssue) {
+          setRuntimeError("Runtime must be from 1 to 300 minutes.")
+        }
+        const titleIssue = result.details.find((item) =>
+          item.loc?.includes("title"),
+        )
+        if (titleIssue) {
+          setFieldError("Enter a valid movie title.")
+        }
       }
       return
     }
@@ -69,6 +85,9 @@ function MovieForm({ movies, onCreate }) {
             placeholder="133"
             required
           />
+          {runtimeError && (
+            <span className="field-error">{runtimeError}</span>
+          )}
         </label>
         <label>
           Prerequisites
