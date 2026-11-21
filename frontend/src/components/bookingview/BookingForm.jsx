@@ -72,7 +72,7 @@ function BookingForm({ cinemas, onSubmit }) {
             whiteSpace: "nowrap",
           }}
         >
-          Get quote
+          Get Quota
         </Button>
       </Stack>
 

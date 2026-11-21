@@ -3,7 +3,9 @@ import {
   Alert,
   Box,
   Button,
+  Chip,
   Divider,
+  Paper,
   Stack,
   TextField,
   Typography,
@@ -76,8 +78,42 @@ function BookingView({ cinemas, onCreateCinema }) {
   return (
     <Stack spacing={3}>
       <Typography variant="h4" component="h2">
-        Booking
+        Cinema Hall
       </Typography>
+
+      <Box>
+        <Typography variant="h6" component="h3" sx={{ mb: 1.5 }}>
+          Cinema Halls
+        </Typography>
+        {cinemas.length === 0 ? (
+          <Typography color="text.secondary">
+            No cinema halls have been added yet.
+          </Typography>
+        ) : (
+          <Stack spacing={1.5}>
+            {cinemas.map((cinema) => (
+              <Paper
+                key={cinema.id}
+                variant="outlined"
+                sx={{ p: 2 }}
+              >
+                <Typography sx={{ mb: 1, fontWeight: 600 }}>
+                  {cinema.name}
+                </Typography>
+                <Stack direction="row" spacing={1} useFlexGap sx={{ flexWrap: "wrap" }}>
+                  {cinema.bundleSizes.map((size) => (
+                    <Chip
+                      key={size}
+                      label={`${size} seats`}
+                      variant="outlined"
+                    />
+                  ))}
+                </Stack>
+              </Paper>
+            ))}
+          </Stack>
+        )}
+      </Box>
 
       <BookingForm cinemas={cinemas} onSubmit={loadQuote} />
       {error && <Alert severity="error">{error}</Alert>}
