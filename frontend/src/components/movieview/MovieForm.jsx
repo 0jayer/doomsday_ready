@@ -1,4 +1,15 @@
 import { useState } from "react"
+import {
+  Alert,
+  Autocomplete,
+  Box,
+  Button,
+  Checkbox,
+  Paper,
+  Stack,
+  TextField,
+  Typography,
+} from "@mui/material"
 
 function MovieForm({ movies, onCreate }) {
   const [title, setTitle] = useState("")
@@ -52,76 +63,95 @@ function MovieForm({ movies, onCreate }) {
   }
 
   return (
-    <div className="movie-create-panel">
-      <h3>Add a movie</h3>
-      <form className="movie-form" onSubmit={handleSubmit}>
-        <label>
-          Title
-          <input
+    <Paper component="section" variant="outlined" sx={{ p: 2.5 }}>
+      <Typography variant="h6" sx={{ mb: 2 }}>
+        Add a movie
+      </Typography>
+
+      <Box component="form" onSubmit={handleSubmit}>
+        <Stack
+          direction={{ xs: "column", lg: "row" }}
+          spacing={2}
+          sx={{
+            alignItems: { xs: "stretch", lg: "flex-start" },
+            flexWrap: { lg: "wrap" },
+          }}
+        >
+          <TextField
+            label="Title"
             value={title}
             onChange={(event) => setTitle(event.target.value)}
             placeholder="Spider-Man: Homecoming"
+            error={Boolean(fieldError)}
+            helperText={fieldError}
             required
+            fullWidth
           />
-        </label>
-        <label>
-          Release year
-          <input
+          <TextField
+            label="Release year"
             type="number"
             value={releaseYear}
             onChange={(event) => setReleaseYear(event.target.value)}
             placeholder="2017"
             required
+            sx={{ minWidth: { lg: 150 }, flex: { lg: "0 1 150px" } }}
           />
-        </label>
-        <label>
-          Runtime (minutes)
-          <input
+          <TextField
+            label="Runtime (minutes)"
             type="number"
-            min="1"
-            max="300"
             value={runtimeMinutes}
             onChange={(event) => setRuntimeMinutes(event.target.value)}
+            slotProps={{
+              htmlInput: { min: 1, max: 300 },
+            }}
             placeholder="133"
+            error={Boolean(runtimeError)}
+            helperText={runtimeError}
             required
+            sx={{ minWidth: { lg: 180 }, flex: { lg: "0 1 180px" } }}
           />
-          {runtimeError && (
-            <span className="field-error">{runtimeError}</span>
-          )}
-        </label>
-        <label>
-          Prerequisites
-          <details className="prerequisite-dropdown">
-            <summary>
-              {prerequisiteIds.length
-                ? `${prerequisiteIds.length} selected`
-                : "Select prerequisites"}
-            </summary>
-            <div className="prerequisite-options">
-              {movies.map((movie) => (
-                <label key={movie.id}>
-                  <input
-                    type="checkbox"
-                    checked={prerequisiteIds.includes(movie.id)}
-                    onChange={(event) => {
-                      setPrerequisiteIds((current) =>
-                        event.target.checked
-                          ? [...current, movie.id]
-                          : current.filter((id) => id !== movie.id),
-                      )
-                    }}
-                  />
-                  {movie.title}
-                </label>
-              ))}
-            </div>
-          </details>
-        </label>
-        <button type="submit">Add movie</button>
-      </form>
-      {fieldError && <p className="field-error">{fieldError}</p>}
-      {error && <p className="form-error" role="alert">{error}</p>}
-    </div>
+          <Autocomplete
+            multiple
+            options={movies}
+            getOptionLabel={(movie) => movie.title}
+            value={movies.filter((movie) => prerequisiteIds.includes(movie.id))}
+            onChange={(_, selected) =>
+              setPrerequisiteIds(selected.map((movie) => movie.id))
+            }
+            disableCloseOnSelect
+            sx={{ minWidth: { xs: "100%", lg: 260 }, flex: { lg: "1 1 260px" } }}
+            renderOption={(props, movie, { selected }) => (
+              <li {...props}>
+                <Checkbox checked={selected} sx={{ mr: 1 }} />
+                {movie.title}
+              </li>
+            )}
+            renderInput={(params) => (
+              <TextField {...params} label="Prerequisites" />
+            )}
+          />
+          <Button
+            type="submit"
+            variant="contained"
+            sx={{
+              height: 56,
+              px: 2.5,
+              width: { xs: "100%", lg: "auto" },
+              minWidth: 120,
+              whiteSpace: "nowrap",
+            }}
+          >
+            Add movie
+          </Button>
+        </Stack>
+
+        {error && (
+          <Alert severity="error" sx={{ mt: 2 }}>
+            {error}
+          </Alert>
+        )}
+      </Box>
+    </Paper>
   )
 }
 

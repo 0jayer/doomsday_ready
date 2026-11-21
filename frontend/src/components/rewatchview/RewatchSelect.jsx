@@ -1,17 +1,23 @@
+import { MenuItem, TextField } from "@mui/material"
+
 function RewatchSelect({ movies, targetId, onChange }) {
   return (
-    <select
-      className="rewatch-select"
+    <TextField
+      select
+      fullWidth
+      label="Target movie"
       value={targetId}
       onChange={onChange}
     >
-      <option value="">Select a movie</option>
+      <MenuItem value="">
+        <em>Select a movie</em>
+      </MenuItem>
       {movies.map((movie) => (
-        <option key={movie.id} value={movie.id}>
+        <MenuItem key={movie.id} value={movie.id}>
           {movie.title}
-        </option>
+        </MenuItem>
       ))}
-    </select>
+    </TextField>
   )
 }
 

@@ -1,22 +1,34 @@
 import MovieCard from "./MovieCard"
+import {
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Typography,
+} from "@mui/material"
 
 function MovieList({ movies, onUpdate }) {
   return (
-    <div className="movie-table-wrap">
-      <table className="movie-table">
-        <thead>
-          <tr>
-            <th>Title</th>
-            <th>Year</th>
-            <th>Runtime</th>
-            <th>Watched</th>
-            <th>
+    <TableContainer component={Paper} variant="outlined">
+      <Table>
+        <TableHead>
+          <TableRow>
+            <TableCell>Title</TableCell>
+            <TableCell>Year</TableCell>
+            <TableCell>Runtime</TableCell>
+            <TableCell>Watched</TableCell>
+            <TableCell>
               Direct prerequisites
-              <span className="column-help">Stored links only</span>
-            </th>
-          </tr>
-        </thead>
-        <tbody>
+              <Typography variant="caption" display="block" color="text.secondary">
+                Stored links only
+              </Typography>
+            </TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
           {movies.map((movie) => (
             <MovieCard
               key={movie.id}
@@ -25,9 +37,9 @@ function MovieList({ movies, onUpdate }) {
               onUpdate={onUpdate}
             />
           ))}
-        </tbody>
-      </table>
-    </div>
+        </TableBody>
+      </Table>
+    </TableContainer>
   )
 }
 

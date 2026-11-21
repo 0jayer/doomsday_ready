@@ -1,14 +1,16 @@
 import MovieForm from "./MovieForm"
 import MovieList from "./MovieList"
-import "./MoviesView.css"
+import { Stack, Typography } from "@mui/material"
 
 function MoviesView({ movies, onCreate, onUpdate }) {
   return (
-    <section className="movies-view">
-      <h2>Movies</h2>
+    <Stack spacing={3}>
+      <Typography variant="h4" component="h2">
+        Movies
+      </Typography>
       <MovieForm movies={movies} onCreate={onCreate} />
       <MovieList movies={movies} onUpdate={onUpdate} />
-    </section>
+    </Stack>
   )
 }
 

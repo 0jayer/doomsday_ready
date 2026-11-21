@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react"
+import { Alert, Stack, Typography } from "@mui/material"
 import { apiRequest } from "../../api"
 import RewatchSelect from "./RewatchSelect"
 import RewatchResult from "./RewatchResult"
-import "./RewatchView.css"
 
 function RewatchView({ movies }) {
   const [targetId, setTargetId] = useState("")
@@ -12,9 +12,18 @@ function RewatchView({ movies }) {
   useEffect(() => {
     if (!targetId) return
 
+    let cancelled = false
     apiRequest(`/movies/${targetId}/rewatch-order`)
-      .then(setPlan)
-      .catch((requestError) => setError(requestError.message))
+      .then((data) => {
+        if (!cancelled) setPlan(data)
+      })
+      .catch((requestError) => {
+        if (!cancelled) setError(requestError.message)
+      })
+
+    return () => {
+      cancelled = true
+    }
   }, [targetId])
 
   function selectTarget(event) {
@@ -24,16 +33,18 @@ function RewatchView({ movies }) {
   }
 
   return (
-    <section className="rewatch-view">
-      <h2>Rewatch Plan</h2>
+    <Stack spacing={3}>
+      <Typography variant="h4" component="h2">
+        Rewatch Plan
+      </Typography>
       <RewatchSelect
         movies={movies}
         targetId={targetId}
         onChange={selectTarget}
       />
-      {error && <p role="alert">{error}</p>}
+      {error && <Alert severity="error">{error}</Alert>}
       <RewatchResult plan={plan} />
-    </section>
+    </Stack>
   )
 }
 

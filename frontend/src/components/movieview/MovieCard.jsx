@@ -1,14 +1,26 @@
 import { useState } from "react"
+import {
+  Alert,
+  Autocomplete,
+  Box,
+  Button,
+  Checkbox,
+  Stack,
+  TableCell,
+  TableRow,
+  TextField,
+  Typography,
+} from "@mui/material"
 
 function MovieCard({ movie, movies, onUpdate }) {
   const [inlineError, setInlineError] = useState("")
   const [editing, setEditing] = useState(false)
   const [draftPrerequisites, setDraftPrerequisites] = useState([])
 
-  async function changeWatched(event) {
+  async function changeWatched(_event, checked) {
     setInlineError("")
     const result = await onUpdate(movie.id, {
-      watched: event.target.checked,
+      watched: checked,
     })
     if (!result.ok) setInlineError(result.message)
   }
@@ -60,80 +72,91 @@ function MovieCard({ movie, movies, onUpdate }) {
     .filter(Boolean)
 
   return (
-    <tr className="movie-row">
-      <td data-label="Title">
+    <TableRow>
+      <TableCell>
         <strong>{movie.title}</strong>
-      </td>
-      <td data-label="Year">{movie.releaseYear}</td>
-      <td data-label="Runtime">{movie.runtimeMinutes} min</td>
-      <td data-label="Watched">
-        <input
-          type="checkbox"
+      </TableCell>
+      <TableCell>{movie.releaseYear}</TableCell>
+      <TableCell>{movie.runtimeMinutes} min</TableCell>
+      <TableCell>
+        <Checkbox
           checked={movie.watched}
           onChange={changeWatched}
-          aria-label={`Watched ${movie.title}`}
+          slotProps={{
+            input: { "aria-label": `Watched ${movie.title}` },
+          }}
         />
-      </td>
-      <td data-label="Direct prerequisites">
+      </TableCell>
+      <TableCell sx={{ minWidth: 330 }}>
         {editing ? (
-          <div className="prerequisite-editor">
-            <div className="prerequisite-edit-line">
-              <details className="prerequisite-dropdown">
-                <summary>
-                  {draftPrerequisites.length
-                    ? `${draftPrerequisites.length} selected`
-                    : "No prerequisites"}
-                </summary>
-                <div className="prerequisite-options">
-                  {movies
-                    .filter((option) => option.id !== movie.id)
-                    .map((option) => (
-                      <label key={option.id}>
-                        <input
-                          type="checkbox"
-                          checked={draftPrerequisites.includes(option.id)}
-                          onChange={(event) =>
-                            setDraftPrerequisites((current) =>
-                              event.target.checked
-                                ? [...current, option.id]
-                                : current.filter((id) => id !== option.id),
-                            )
-                          }
-                        />
-                        {option.title}
-                      </label>
-                    ))}
-                </div>
-              </details>
-              <div className="prerequisite-actions">
-                <button type="button" onClick={savePrerequisites}>Save</button>
-                <button type="button" className="secondary-button" onClick={cancelEditing}>
-                  Cancel
-                </button>
-              </div>
-            </div>
-          </div>
+          <Stack spacing={1}>
+            <Autocomplete
+              multiple
+              size="small"
+              options={movies.filter((option) => option.id !== movie.id)}
+              getOptionLabel={(option) => option.title}
+              value={movies.filter(
+                (option) =>
+                  option.id !== movie.id &&
+                  draftPrerequisites.includes(option.id),
+              )}
+              onChange={(_, selected) =>
+                setDraftPrerequisites(selected.map((option) => option.id))
+              }
+              disableCloseOnSelect
+              renderOption={(props, option, { selected }) => (
+                <li {...props}>
+                  <Checkbox checked={selected} sx={{ mr: 1 }} />
+                  {option.title}
+                </li>
+              )}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Direct prerequisites"
+                  placeholder="Select"
+                />
+              )}
+            />
+            <Stack direction="row" spacing={1}>
+              <Button size="small" variant="contained" onClick={savePrerequisites}>
+                Save
+              </Button>
+              <Button size="small" variant="outlined" onClick={cancelEditing}>
+                Cancel
+              </Button>
+            </Stack>
+          </Stack>
         ) : (
-          <div className="direct-prerequisite-line">
-            <p className="direct-prerequisite-value">
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: 1,
+            }}
+          >
+            <Typography variant="body2">
               {prerequisiteNames.length
                 ? prerequisiteNames.join(", ")
                 : "None"}
-            </p>
-            <button
-              type="button"
-              className="edit-prerequisites-button"
+            </Typography>
+            <Button
+              size="small"
+              variant="outlined"
               onClick={startEditing}
             >
               Edit
-            </button>
-          </div>
+            </Button>
+          </Box>
         )}
         {inlineError && (
-          <p className="inline-error" role="alert">{inlineError}</p>
+          <Alert severity="error" sx={{ mt: 1 }}>
+            {inlineError}
+          </Alert>
         )}
-      </td>
-    </tr>
+      </TableCell>
+    </TableRow>
   )
 }
 

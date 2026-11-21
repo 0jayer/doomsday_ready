@@ -1,4 +1,5 @@
 import { useState } from "react"
+import { Alert, Button, MenuItem, Stack, TextField, Typography } from "@mui/material"
 
 function BookingForm({ cinemas, onSubmit }) {
   const [cinemaId, setCinemaId] = useState("")
@@ -25,40 +26,63 @@ function BookingForm({ cinemas, onSubmit }) {
   )
 
   return (
-    <div>
-      <form className="booking-form" onSubmit={handleSubmit}>
-        <select
+    <Stack spacing={1.5}>
+      <Stack
+        component="form"
+        onSubmit={handleSubmit}
+        direction={{ xs: "column", lg: "row" }}
+        spacing={2}
+        sx={{ alignItems: { xs: "stretch", lg: "flex-start" } }}
+      >
+        <TextField
+          select
+          label="Cinema"
           value={cinemaId}
           onChange={(event) => setCinemaId(event.target.value)}
-          required
+          sx={{ flex: 2 }}
         >
-          <option value="">Select a cinema</option>
+          <MenuItem value="">
+            <em>Select a cinema</em>
+          </MenuItem>
           {cinemas.map((cinema) => (
-            <option key={cinema.id} value={cinema.id}>
+            <MenuItem key={cinema.id} value={cinema.id}>
               {cinema.name}
-            </option>
+            </MenuItem>
           ))}
-        </select>
+        </TextField>
 
-        <input
+        <TextField
+          label="Group size"
           type="number"
-          min="1"
-          max="10000"
           value={groupSize}
           onChange={(event) => setGroupSize(event.target.value)}
-          placeholder="Group size"
+          slotProps={{ htmlInput: { min: 1, max: 10000 } }}
           required
+          sx={{ flex: 1 }}
         />
 
-        <button type="submit">Get quote</button>
-      </form>
+        <Button
+          type="submit"
+          variant="contained"
+          sx={{
+            height: 56,
+            px: 2.5,
+            width: { xs: "100%", lg: "auto" },
+            minWidth: 120,
+            whiteSpace: "nowrap",
+          }}
+        >
+          Get quote
+        </Button>
+      </Stack>
+
       {selectedCinema && (
-        <p className="cinema-bundle-sizes">
+        <Typography variant="body2" color="text.secondary">
           Bundle sizes: {selectedCinema.bundleSizes.join(", ")}
-        </p>
+        </Typography>
       )}
-      {error && <p className="booking-error" role="alert">{error}</p>}
-    </div>
+      {error && <Alert severity="error">{error}</Alert>}
+    </Stack>
   )
 }
 

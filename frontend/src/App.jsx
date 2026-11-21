@@ -12,8 +12,6 @@ import { apiRequest } from "./api"
 import MoviesView from "./components/movieview/MoviesView"
 import RewatchView from "./components/rewatchview/RewatchView"
 import BookingView from "./components/bookingview/BookingView"
-import "./App.css"
-
 function App() {
   const [view, setView] = useState("movies")
   const [movies, setMovies] = useState([])
