@@ -27,6 +27,37 @@ Booking results are quotes only. They are calculated when requested and are not 
 - **Rewatch Plan:** select a target movie and view prerequisites, progress, and remaining runtime.
 - **Booking:** view cinema halls and their bundle sizes, select a cinema hall, enter a group size, and view the cheapest exact bundle combination.
 
+## Project structure
+
+```text
+.
+├── backend/
+│   ├── src/backend/
+│   │   ├── cinema/       # Cinema models, schemas, and repository
+│   │   ├── database/     # Database connection, helpers, and schema
+│   │   ├── movie/        # Movie models, schemas, and repositories
+│   │   ├── errors.py
+│   │   ├── main.py
+│   │   └── seed.py
+│   └── tests/
+│       ├── test_booking.py
+│       └── test_graph.py
+├── docs/
+│   └── ERD_Diagram.png
+├── frontend/
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── bookingview/  # Booking form, view, and result components
+│   │   │   ├── movieview/    # Movie forms, cards, lists, and views
+│   │   │   └── rewatchview/  # Rewatch selection, results, and view components
+│   │   ├── App.jsx
+│   │   └── api.js
+│   └── tests/
+│       └── movies-checkbox.spec.js
+├── docker-compose.yml
+└── README.md
+```
+
 ## Data model
 
 The following conceptual data model shows the entities and their relationships. `MOVIES` has a many-to-many self-referencing relationship for prerequisites. `CINEMA_BUNDLES` normalizes the cinema bundle-size multivalued attribute.
