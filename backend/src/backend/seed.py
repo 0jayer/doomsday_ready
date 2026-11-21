@@ -1,6 +1,9 @@
 from backend.database.database import Database
 from backend.movie.movie_repositories import MovieRepository
 
+"""We do not need this file, this is only to generate the sample data and test backend"""
+
+
 # (title, year, runtime, prerequisite titles). Links follow the brief's sample data.
 MOVIES = [
     ("Iron Man", 2008, 126, []),
