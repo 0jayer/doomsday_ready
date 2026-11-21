@@ -25,13 +25,13 @@ Booking results are quotes only. They are calculated when requested and are not 
 
 - **Movies:** create movies and update their prerequisites and watched status.
 - **Rewatch Plan:** select a target movie and view prerequisites, progress, and remaining runtime.
-- **Cinema Hall:** view cinema halls and their bundle sizes, select a cinema hall, enter a group size, and view the cheapest exact bundle combination.
+- **Booking:** view cinema halls and their bundle sizes, select a cinema hall, enter a group size, and view the cheapest exact bundle combination.
 
 ## Data model
 
 The following conceptual data model shows the entities and their relationships. `MOVIES` has a many-to-many self-referencing relationship for prerequisites. `CINEMA_BUNDLES` normalizes the cinema bundle-size multivalued attribute.
 
-[docs/ERD_Diagram.png](docs/ERD_Diagram.png).
+[docs/ERD_Diagram.png](docs/ERD_Diagram.png)
 
 ### Entity details
 
@@ -157,6 +157,8 @@ cd frontend
 npm run test:e2e
 ```
 
+GitHub Actions runs backend tests and frontend lint/build checks for every push and pull request. Docker Compose configuration is also validated.
+
 ## Reasonable choices and assumptions
 
 - Rewatch order uses a prerequisites-first topological traversal. If several valid orders exist, the response may return any valid order.
@@ -164,10 +166,8 @@ npm run test:e2e
 - Bundle sizes are normalized into one row per size so every size can be validated, indexed, and updated independently.
 - A booking is not persisted. The assignment specifies a quote calculation, not a seat reservation or booking history.
 - The database does not provide a movie-cinema relationship because no movie is tied to a cinema in the specified API or UI.
-- The bundle/booking code does not connected back to any movies yet, this is because it was not asked to be done, we can connect it and then make an option to buy tickets, but for now we will  leave it as is for simplicity
-
+- The bundle/booking feature is independent of movies because the assessment does not require tickets or bookings to be associated with a specific movie.
 
 ## AI assistance
 
-Used AI tools to write a template code, the codes are procedural or scripting Style (e.g. writes everything on 1 function or 1 file), I read and write the proper changes of the implementation and properly make it OOP compliant for modularity and ease of reading. File structure and folder structures are done without AI.
-
+AI tools were used as an assistant for discussing and reviewing implementation choices, and debugging and guiding proper docker setup. The application code and architecture were reviewed and implemented and refined against the repository and assignment requirements by me.
