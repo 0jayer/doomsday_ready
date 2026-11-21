@@ -1,4 +1,13 @@
 import { useEffect, useState } from "react"
+import {
+  Alert,
+  Box,
+  Container,
+  CircularProgress,
+  Tab,
+  Tabs,
+  Typography,
+} from "@mui/material"
 import { apiRequest } from "./api"
 import MoviesView from "./components/movieview/MoviesView"
 import RewatchView from "./components/rewatchview/RewatchView"
@@ -107,40 +116,57 @@ function App() {
   }
 
   if (loading) {
-    return <main className="loading"><p>Loading...</p></main>
+    return (
+      <Box
+        sx={{
+          minHeight: "100vh",
+          display: "grid",
+          placeItems: "center",
+        }}
+      >
+        <CircularProgress />
+      </Box>
+    )
   }
 
   return (
-    <main className="app-shell">
-      <header className="app-header">
-        <h1>Doomsday Ready</h1>
-        <nav className="app-nav">
-          <button className={view === "movies" ? "active" : ""} onClick={() => setView("movies")}>Movies</button>
-          <button className={view === "rewatch" ? "active" : ""} onClick={() => setView("rewatch")}>Rewatch Plan</button>
-          <button className={view === "booking" ? "active" : ""} onClick={() => setView("booking")}>Booking</button>
-        </nav>
-      </header>
+    <Container maxWidth="lg" sx={{ py: 4 }}>
+      <Typography component="h1" variant="h3" sx={{ mb: 2 }}>
+        Doomsday Ready
+      </Typography>
 
-      {error && <p className="app-error" role="alert">{error}</p>}
+      <Tabs
+        value={view}
+        onChange={(_, nextView) => setView(nextView)}
+        sx={{ mb: 3, borderBottom: 1, borderColor: "divider" }}
+      >
+        <Tab value="movies" label="Movies" />
+        <Tab value="rewatch" label="Rewatch Plan" />
+        <Tab value="booking" label="Booking" />
+      </Tabs>
 
-      <div className="app-content">
-        {view === "movies" && (
-          <MoviesView
-            movies={movies}
-            onCreate={createMovie}
-            onUpdate={updateMovie}
-          />
-        )}
+      {error && (
+        <Alert severity="error" sx={{ mb: 3 }}>
+          {error}
+        </Alert>
+      )}
 
-        {view === "rewatch" && <RewatchView movies={movies} />}
-        {view === "booking" && (
-          <BookingView
-            cinemas={cinemas}
-            onCreateCinema={createCinema}
-          />
-        )}
-      </div>
-    </main>
+      {view === "movies" && (
+        <MoviesView
+          movies={movies}
+          onCreate={createMovie}
+          onUpdate={updateMovie}
+        />
+      )}
+
+      {view === "rewatch" && <RewatchView movies={movies} />}
+      {view === "booking" && (
+        <BookingView
+          cinemas={cinemas}
+          onCreateCinema={createCinema}
+        />
+      )}
+    </Container>
   )
 }
 
