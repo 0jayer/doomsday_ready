@@ -6,7 +6,7 @@ function MoviesView({ movies, onCreate, onUpdate }) {
   return (
     <section className="movies-view">
       <h2>Movies</h2>
-      <MovieForm onCreate={onCreate} />
+      <MovieForm movies={movies} onCreate={onCreate} />
       <MovieList movies={movies} onUpdate={onUpdate} />
     </section>
   )

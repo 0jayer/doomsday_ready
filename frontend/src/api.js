@@ -8,7 +8,10 @@ export async function apiRequest(path, options = {}) {
   if (text) data = JSON.parse(text)
 
   if (!response.ok) {
-    throw new Error(data?.error?.message || "Request failed")
+    const error = new Error(data?.error?.message || "Request failed")
+    error.code = data?.error?.code
+    error.details = data?.detail
+    throw error
   }
 
   return data

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { apiRequest } from "./api"
 import MoviesView from "./components/movieview/MoviesView"
-import RewatchView from "./components/RewatchView"
+import RewatchView from "./components/rewatchview/RewatchView"
 import BookingView from "./components/bookingview/BookingView"
 import "./App.css"
 
@@ -34,12 +34,27 @@ function App() {
       })
       setMovies((current) => [...current, created])
       setError("")
+      return { ok: true }
     } catch (requestError) {
       setError(requestError.message)
+      return {
+        ok: false,
+        code: requestError.code,
+        message: requestError.message,
+      }
     }
   }
 
   async function updateMovie(movieId, fields) {
+    const previous = movies.find((movie) => movie.id === movieId)
+    if (!previous) return { ok: false, message: "Movie not found" }
+
+    setMovies((current) =>
+      current.map((movie) =>
+        movie.id === movieId ? { ...movie, ...fields } : movie,
+      ),
+    )
+
     try {
       const updated = await apiRequest(`/movies/${movieId}`, {
         method: "PATCH",
@@ -52,37 +67,51 @@ function App() {
         ),
       )
       setError("")
+      return { ok: true }
     } catch (requestError) {
+      setMovies((current) =>
+        current.map((movie) =>
+          movie.id === movieId ? previous : movie,
+        ),
+      )
       setError(requestError.message)
+      return {
+        ok: false,
+        code: requestError.code,
+        message: requestError.message,
+      }
     }
   }
 
   if (loading) {
-    return <main><p>Loading...</p></main>
+    return <main className="loading"><p>Loading...</p></main>
   }
 
   return (
-    <main>
-      <h1>Doomsday Ready</h1>
+    <main className="app-shell">
+      <header className="app-header">
+        <h1>Doomsday Ready</h1>
+        <nav className="app-nav">
+          <button className={view === "movies" ? "active" : ""} onClick={() => setView("movies")}>Movies</button>
+          <button className={view === "rewatch" ? "active" : ""} onClick={() => setView("rewatch")}>Rewatch Plan</button>
+          <button className={view === "booking" ? "active" : ""} onClick={() => setView("booking")}>Booking</button>
+        </nav>
+      </header>
 
-      <nav>
-        <button onClick={() => setView("movies")}>Movies</button>
-        <button onClick={() => setView("rewatch")}>Rewatch Plan</button>
-        <button onClick={() => setView("booking")}>Booking</button>
-      </nav>
+      {error && <p className="app-error" role="alert">{error}</p>}
 
-      {error && <p role="alert">{error}</p>}
+      <div className="app-content">
+        {view === "movies" && (
+          <MoviesView
+            movies={movies}
+            onCreate={createMovie}
+            onUpdate={updateMovie}
+          />
+        )}
 
-      {view === "movies" && (
-        <MoviesView
-          movies={movies}
-          onCreate={createMovie}
-          onUpdate={updateMovie}
-        />
-      )}
-
-      {view === "rewatch" && <RewatchView movies={movies} />}
-      {view === "booking" && <BookingView cinemas={cinemas} />}
+        {view === "rewatch" && <RewatchView movies={movies} />}
+        {view === "booking" && <BookingView cinemas={cinemas} />}
+      </div>
     </main>
   )
 }
