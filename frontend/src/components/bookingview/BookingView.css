@@ -1,0 +1,31 @@
+.booking-view {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.booking-form {
+  display: grid;
+  grid-template-columns: 2fr 1fr auto;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.booking-form select,
+.booking-form input,
+.booking-form button {
+  min-height: 42px;
+  box-sizing: border-box;
+}
+
+.booking-result {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 16px;
+  text-align: left;
+}
+
+@media (max-width: 700px) {
+  .booking-form {
+    grid-template-columns: 1fr;
+  }
+}

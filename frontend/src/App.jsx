@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react"
 import { apiRequest } from "./api"
-import MoviesView from "./components/movie/MoviesView"
+import MoviesView from "./components/movieview/MoviesView"
 import RewatchView from "./components/RewatchView"
-import BookingView from "./components/BookingView"
+import BookingView from "./components/bookingview/BookingView"
 import "./App.css"
 
 function App() {
