@@ -85,6 +85,27 @@ function App() {
     }
   }
 
+  async function createCinema(cinema) {
+    try {
+      const created = await apiRequest("/cinemas", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(cinema),
+      })
+      setCinemas((current) => [...current, created])
+      setError("")
+      return { ok: true }
+    } catch (requestError) {
+      setError(requestError.message)
+      return {
+        ok: false,
+        code: requestError.code,
+        message: requestError.message,
+        details: requestError.details,
+      }
+    }
+  }
+
   if (loading) {
     return <main className="loading"><p>Loading...</p></main>
   }
@@ -112,7 +133,12 @@ function App() {
         )}
 
         {view === "rewatch" && <RewatchView movies={movies} />}
-        {view === "booking" && <BookingView cinemas={cinemas} />}
+        {view === "booking" && (
+          <BookingView
+            cinemas={cinemas}
+            onCreateCinema={createCinema}
+          />
+        )}
       </div>
     </main>
   )
