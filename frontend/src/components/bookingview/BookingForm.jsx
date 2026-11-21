@@ -36,13 +36,13 @@ function BookingForm({ cinemas, onSubmit }) {
       >
         <TextField
           select
-          label="Cinema"
+          label="Cinema Hall"
           value={cinemaId}
           onChange={(event) => setCinemaId(event.target.value)}
           sx={{ flex: 2 }}
         >
           <MenuItem value="">
-            <em>Select a cinema</em>
+            <em>Select a cinema hall</em>
           </MenuItem>
           {cinemas.map((cinema) => (
             <MenuItem key={cinema.id} value={cinema.id}>

@@ -140,7 +140,7 @@ function App() {
       >
         <Tab value="movies" label="Movies" />
         <Tab value="rewatch" label="Rewatch Plan" />
-        <Tab value="booking" label="Cinema Hall" />
+        <Tab value="booking" label="Booking" />
       </Tabs>
 
       {error && (

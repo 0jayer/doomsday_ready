@@ -84,8 +84,31 @@ All API routes are served under `/api`.
 Requirements:
 
 - Docker with Docker Compose
-- Python 3.14
-- Node.js and npm
+- Python 3.14 and Node.js are only required when running outside Docker
+
+Start the database, backend, and frontend with one command:
+
+```bash
+docker compose up --build
+```
+
+The frontend is available at `http://localhost:5173`. The backend is available at `http://localhost:8000`.
+
+To stop the application:
+
+```bash
+docker compose down
+```
+
+To also remove the PostgreSQL data:
+
+```bash
+docker compose down -v
+```
+
+### Run services individually
+
+You can still run the services outside Docker.
 
 Start PostgreSQL:
 

@@ -78,7 +78,7 @@ function BookingView({ cinemas, onCreateCinema }) {
   return (
     <Stack spacing={3}>
       <Typography variant="h4" component="h2">
-        Cinema Hall
+        Booking
       </Typography>
 
       <Box>
