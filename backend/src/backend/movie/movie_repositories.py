@@ -1,23 +1,11 @@
-from contextlib import contextmanager
-
-import psycopg.errors
-
+from backend.database.db_helpers import unique_guard
 from backend.errors import (
     CircularDependency,
     DuplicateTitle,
     MovieNotFound,
     UnknownPrerequisite,
 )
-from backend.graph import Graph
-
-
-@contextmanager
-def _duplicate_title_guard():
-    """Turn the database's unique-index error into our own DuplicateTitle."""
-    try:
-        yield
-    except psycopg.errors.UniqueViolation:
-        raise DuplicateTitle() from None
+from backend.movie.movie import Movie
 
 
 class MovieRepository:
@@ -26,47 +14,26 @@ class MovieRepository:
     def __init__(self, conn):
         self.conn = conn
 
-    # ---------- reading ----------
     def build_graph(self):
         """Rebuild the prerequisite graph from the edge table."""
-        graph = Graph()
         rows = self.conn.execute(
             "SELECT movie_id, prerequisite_id FROM movie_prerequisites"
         ).fetchall()
-        for row in rows:
-            graph.add_edge(row["movie_id"], row["prerequisite_id"])
-        return graph
+        return Movie.build_graph(
+            (row["movie_id"], row["prerequisite_id"]) for row in rows
+        )
 
-    def _prereq_map(self):
-        mapping = {}
-        rows = self.conn.execute(
-            "SELECT movie_id, prerequisite_id FROM movie_prerequisites ORDER BY prerequisite_id"
-        ).fetchall()
-        for row in rows:
-            mapping.setdefault(row["movie_id"], []).append(row["prerequisite_id"])
-        return mapping
+    @staticmethod
+    def _from_row(row):
+        return Movie(
+            id=row["id"],
+            title=row["title"],
+            release_year=row["release_year"],
+            runtime_minutes=row["runtime_minutes"],
+            watched=row["watched"],
+            prerequisites=tuple(row.get("prerequisites", [])),
+        )
 
-    def list_all(self):
-        movies = self.conn.execute("SELECT * FROM movies ORDER BY id").fetchall()
-        prereqs = self._prereq_map()
-        for m in movies:
-            m["prerequisites"] = prereqs.get(m["id"], [])
-        return movies
-
-    def get(self, movie_id):
-        movie = self.conn.execute(
-            "SELECT * FROM movies WHERE id = %s", (movie_id,)
-        ).fetchone()
-        if movie is None:
-            raise MovieNotFound(movie_id)
-        rows = self.conn.execute(
-            "SELECT prerequisite_id FROM movie_prerequisites WHERE movie_id = %s ORDER BY prerequisite_id",
-            (movie_id,),
-        ).fetchall()
-        movie["prerequisites"] = [r["prerequisite_id"] for r in rows]
-        return movie
-
-    # ---------- writing ----------
     def _check_prereqs_exist(self, prereq_ids):
         if not prereq_ids:
             return
@@ -87,22 +54,52 @@ class MovieRepository:
                 (movie_id, pid),
             )
 
+    def list_all(self):
+        movies = self.conn.execute("SELECT * FROM movies ORDER BY id").fetchall()
+        prereqs = self._relation_map()
+        for movie in movies:
+            movie["prerequisites"] = prereqs.get(movie["id"], [])
+        return [self._from_row(movie) for movie in movies]
+
+    def get(self, movie_id):
+        movie = self.conn.execute(
+            "SELECT * FROM movies WHERE id = %s", (movie_id,)
+        ).fetchone()
+        if movie is None:
+            raise MovieNotFound(movie_id)
+        rows = self.conn.execute(
+            "SELECT prerequisite_id FROM movie_prerequisites "
+            "WHERE movie_id = %s ORDER BY prerequisite_id",
+            (movie_id,),
+        ).fetchall()
+        movie["prerequisites"] = [row["prerequisite_id"] for row in rows]
+        return self._from_row(movie)
+
+    def _relation_map(self):
+        mapping = {}
+        rows = self.conn.execute(
+            "SELECT movie_id, prerequisite_id "
+            "FROM movie_prerequisites ORDER BY prerequisite_id"
+        ).fetchall()
+        for row in rows:
+            mapping.setdefault(row["movie_id"], []).append(row["prerequisite_id"])
+        return mapping
+
     def create(self, title, release_year, runtime_minutes, prerequisites=(), watched=False):
         prereq_ids = set(prerequisites)
-        with _duplicate_title_guard(), self.conn.transaction():
+        with unique_guard(DuplicateTitle), self.conn.transaction():
             self._check_prereqs_exist(prereq_ids)
             row = self.conn.execute(
                 """INSERT INTO movies (title, release_year, runtime_minutes, watched)
                    VALUES (%s, %s, %s, %s) RETURNING id""",
                 (title, release_year, runtime_minutes, watched),
             ).fetchone()
-            # A brand-new movie has no dependents, so it cannot close a cycle.
             self._replace_prereqs(row["id"], prereq_ids)
         return self.get(row["id"])
 
     def update(self, movie_id, fields, prerequisites=None):
         """fields: dict of only the columns to change. prerequisites: None = leave alone."""
-        with _duplicate_title_guard(), self.conn.transaction():
+        with unique_guard(DuplicateTitle), self.conn.transaction():
             self.conn.execute("SELECT pg_advisory_xact_lock(1)")
             exists = self.conn.execute(
                 "SELECT 1 FROM movies WHERE id = %s", (movie_id,)
@@ -129,7 +126,7 @@ class MovieRepository:
 
     def rewatch_order(self, movie_id):
         """Prerequisite movies of movie_id, prerequisites first, target excluded."""
-        self.get(movie_id)  # raises MovieNotFound for an unknown id (otherwise we'd return [])
+        self.get(movie_id)
         order = self.build_graph().get_rewatch_order(movie_id)
         if not order:
             return []
@@ -137,4 +134,4 @@ class MovieRepository:
             "SELECT * FROM movies WHERE id = ANY(%s)", (order,)
         ).fetchall()
         by_id = {r["id"]: r for r in rows}
-        return [by_id[i] for i in order]  # SQL doesn't keep order, so restore the graph's order
+        return [self._from_row(by_id[i]) for i in order]

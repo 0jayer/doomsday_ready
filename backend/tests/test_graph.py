@@ -1,11 +1,21 @@
-from backend.graph import Graph
+from backend.movie.movie import Movie
+
+
+def test_movie_entity():
+    movie = Movie(
+        id=1,
+        title="Iron Man",
+        release_year=2008,
+        runtime_minutes=126,
+        watched=False,
+        prerequisites=(2, 3),
+    )
+    assert movie.title == "Iron Man"
+    assert movie.prerequisites == (2, 3)
 
 
 def build(edges):
-    g = Graph()
-    for movie, prereq in edges:
-        g.add_edge(movie, prereq)
-    return g
+    return Movie.build_graph(edges)
 
 
 # Iron Man=1, First Avenger=2, Avengers=3, Civil War=4,
@@ -17,7 +27,7 @@ def assert_valid_order(g, order):
     """Every movie must come after all of its own prerequisites."""
     position = {movie: i for i, movie in enumerate(order)}
     for movie in order:
-        for prereq in g.graph[movie]:
+        for prereq in g.prerequisite_ids(movie):
             assert position[prereq] < position[movie]
 
 

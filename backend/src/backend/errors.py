@@ -39,3 +39,19 @@ class DuplicateTitle(ApiError):
 
     def __init__(self):
         super().__init__("A movie with this title already exists")
+
+
+class CinemaNotFound(ApiError):
+    status = 404
+    code = "CINEMA_NOT_FOUND"
+
+    def __init__(self, cinema_id):
+        super().__init__(f"Cinema {cinema_id} not found")
+
+
+class DuplicateCinemaName(ApiError):
+    status = 409
+    code = "DUPLICATE_CINEMA_NAME"
+
+    def __init__(self):
+        super().__init__("A cinema with this name already exists")

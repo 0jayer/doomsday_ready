@@ -1,5 +1,5 @@
-from backend.database import Database
-from backend.repositories import MovieRepository
+from backend.database.database import Database
+from backend.movie.movie_repositories import MovieRepository
 
 # (title, year, runtime, prerequisite titles). Links follow the brief's sample data.
 MOVIES = [
@@ -24,7 +24,7 @@ def main():
         ids = {}
         for title, year, runtime, prereq_titles in MOVIES:
             movie = repo.create(title, year, runtime, [ids[t] for t in prereq_titles])
-            ids[title] = movie["id"]
+            ids[title] = movie.id
         print(f"Seeded {len(ids)} movies.")
 
 
