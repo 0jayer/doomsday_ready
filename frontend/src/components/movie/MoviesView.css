@@ -1,0 +1,41 @@
+.movies-view {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.movie-form {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr auto;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.movie-form input,
+.movie-form button {
+  min-height: 42px;
+  box-sizing: border-box;
+}
+
+.movie-list {
+  display: grid;
+  gap: 12px;
+}
+
+.movie-card {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 16px;
+  text-align: left;
+}
+
+.movie-card label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+@media (max-width: 700px) {
+  .movie-form {
+    grid-template-columns: 1fr;
+  }
+}

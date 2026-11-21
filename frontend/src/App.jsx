@@ -1,121 +1,89 @@
-import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import './App.css'
+import { useEffect, useState } from "react"
+import { apiRequest } from "./api"
+import MoviesView from "./components/movie/MoviesView"
+import RewatchView from "./components/RewatchView"
+import BookingView from "./components/BookingView"
+import "./App.css"
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [view, setView] = useState("movies")
+  const [movies, setMovies] = useState([])
+  const [cinemas, setCinemas] = useState([])
+  const [error, setError] = useState("")
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    Promise.all([
+      apiRequest("/movies"),
+      apiRequest("/cinemas"),
+    ])
+      .then(([movieData, cinemaData]) => {
+        setMovies(movieData)
+        setCinemas(cinemaData)
+      })
+      .catch((requestError) => setError(requestError.message))
+      .finally(() => setLoading(false))
+  }, [])
+
+  async function createMovie(movie) {
+    try {
+      const created = await apiRequest("/movies", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(movie),
+      })
+      setMovies((current) => [...current, created])
+      setError("")
+    } catch (requestError) {
+      setError(requestError.message)
+    }
+  }
+
+  async function updateMovie(movieId, fields) {
+    try {
+      const updated = await apiRequest(`/movies/${movieId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(fields),
+      })
+      setMovies((current) =>
+        current.map((movie) =>
+          movie.id === movieId ? updated : movie,
+        ),
+      )
+      setError("")
+    } catch (requestError) {
+      setError(requestError.message)
+    }
+  }
+
+  if (loading) {
+    return <main><p>Loading...</p></main>
+  }
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+    <main>
+      <h1>Doomsday Ready</h1>
 
-      <div className="ticks"></div>
+      <nav>
+        <button onClick={() => setView("movies")}>Movies</button>
+        <button onClick={() => setView("rewatch")}>Rewatch Plan</button>
+        <button onClick={() => setView("booking")}>Booking</button>
+      </nav>
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+      {error && <p role="alert">{error}</p>}
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+      {view === "movies" && (
+        <MoviesView
+          movies={movies}
+          onCreate={createMovie}
+          onUpdate={updateMovie}
+        />
+      )}
+
+      {view === "rewatch" && <RewatchView movies={movies} />}
+      {view === "booking" && <BookingView cinemas={cinemas} />}
+    </main>
   )
 }
 
