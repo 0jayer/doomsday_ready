@@ -31,7 +31,7 @@ Booking results are quotes only. They are calculated when requested and are not 
 
 The following conceptual data model shows the entities and their relationships. `MOVIES` has a many-to-many self-referencing relationship for prerequisites. `CINEMA_BUNDLES` normalizes the cinema bundle-size multivalued attribute.
 
-[docs/ERD_Diagram.png](docs/ERD_Diagram.png)
+![Doomsday Ready ERD](docs/ERD_Diagram.png)
 
 ### Entity details
 
